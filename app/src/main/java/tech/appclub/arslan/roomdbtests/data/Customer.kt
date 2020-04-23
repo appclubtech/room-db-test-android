@@ -18,8 +18,8 @@ import androidx.room.PrimaryKey
 *
 * */
 
-@Entity(tableName = "person_table")
-data class Person(
+@Entity(tableName = "customer_table")
+data class Customer(
 
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null,
