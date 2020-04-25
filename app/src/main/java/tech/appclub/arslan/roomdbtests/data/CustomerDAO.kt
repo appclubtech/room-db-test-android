@@ -34,12 +34,16 @@ interface CustomerDAO {
     @Query("DELETE FROM customer_table")
     fun deleteAllCustomers()
 
+    // Insert a customer
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertCustomer(customer: Customer)
+
     // Delete a customer
     @Delete
     fun deleteACustomer(customer: Customer)
 
     // Update a customer
-    @Update(onConflict = OnConflictStrategy.REPLACE)
+    @Update
     fun updateACustomer(customer: Customer)
 
 }
