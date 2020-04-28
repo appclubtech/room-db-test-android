@@ -1,13 +1,12 @@
 package tech.appclub.arslan.roomdbtests
 
 import android.content.Context
-import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.assertEquals
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +44,7 @@ class CustomerDatabaseTest {
     @Throws(Exception::class)
     fun verifyInsertedData() {
         val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
-        assertEquals("Bill Hoffman", mAllCustomers[0].fullName)
+        assertEquals("Bill Hoffman", mAllCustomers.first().fullName)
     }
 
     @Test
@@ -53,7 +52,8 @@ class CustomerDatabaseTest {
     fun deleteAllCustomers() {
         mCustomerDAO.deleteAllCustomers()
         val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
-        assertEquals(0, mAllCustomers.size)
+        assertEquals(mCustomerDAO.totalCustomers(), mAllCustomers.size)
+        assertTrue(mAllCustomers.isEmpty())
     }
 
     @Test
@@ -68,72 +68,69 @@ class CustomerDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun allAdultCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllAdultCustomers())
-        assertEquals(5, mAllCustomers.size)
-        assertEquals("Bill Hoffman", mAllCustomers[0].fullName)
+        val mAllAdultCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllAdultCustomers())
+        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
+        assertNotEquals(mAllCustomers.size, mAllAdultCustomers.size)
+        assertEquals("Bill Hoffman", mAllAdultCustomers.first().fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun allMaleCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllMaleCustomers())
-        assertEquals(2, mAllCustomers.size)
-        assertEquals("John Smith", mAllCustomers[1].fullName)
+        val mAllMaleCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllMaleCustomers())
+        assertEquals(mCustomerDAO.totalMaleCustomers(), mAllMaleCustomers.size)
+        assertEquals("John Smith", mAllMaleCustomers[1].fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun allFemaleCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllFemaleCustomers())
-        assertEquals(2, mAllCustomers.size)
-        assertEquals("Maria Garcia", mAllCustomers[0].fullName)
+        val mAllFemaleCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllFemaleCustomers())
+        assertEquals(mCustomerDAO.totalFemaleCustomers(), mAllFemaleCustomers.size)
+        assertEquals("Maria Garcia", mAllFemaleCustomers.first().fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun allOtherGenderCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllOtherGenderCustomers())
-        assertEquals(2, mAllCustomers.size)
-        assertEquals("Catherine Jones", mAllCustomers[0].fullName)
+        val mAllOtherGenderCustomers =
+            LiveDataTestUtil.getValue(mCustomerDAO.getAllOtherGenderCustomers())
+        assertEquals(mCustomerDAO.totalOtherGenderCustomers(), mAllOtherGenderCustomers.size)
+        assertEquals("Catherine Jones", mAllOtherGenderCustomers.first().fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun allActiveCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllActiveCustomers())
-        assertEquals(3, mAllCustomers.size)
-        assertEquals("Maria Garcia", mAllCustomers[2].fullName)
+        val mAllActiveCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllActiveCustomers())
+        assertEquals(mCustomerDAO.allActiveCustomerCount(), mAllActiveCustomers.size)
+        assertEquals("Maria Garcia", mAllActiveCustomers[2].fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun allNonActiveCustomers() {
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllNonActiveCustomers())
-        assertEquals(3, mAllCustomers.size)
-        assertEquals("John Smith", mAllCustomers[1].fullName)
+        val mAllNonActiveCustomers =
+            LiveDataTestUtil.getValue(mCustomerDAO.getAllNonActiveCustomers())
+        assertEquals(mCustomerDAO.allNonActiveCustomerCount(), mAllNonActiveCustomers.size)
+        assertEquals("John Smith", mAllNonActiveCustomers[1].fullName)
     }
 
     @Test
     @Throws(Exception::class)
     fun updateCustomerStatus() {
-        val customer = Customer(id = 1, fullName = "Bill Hoffman", age = 43, gender = 0, isCustomer = 1)
+        val customer =
+            Customer(id = 1, fullName = "Bill Hoffman", age = 43, gender = 0, isCustomer = 1)
         mCustomerDAO.updateACustomer(customer)
         val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
-        assertEquals(1, mAllCustomers[0].isCustomer)
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun totalCustomers() {
-        val count = mCustomerDAO.totalCustomers()
-        val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
-        assertEquals(count, mAllCustomers.size)
+        assertEquals(1, mAllCustomers.first().isCustomer)
     }
 
     @Test
     @Throws(Exception::class)
     fun isIDIncrementing() {
         val mAllCustomers = LiveDataTestUtil.getValue(mCustomerDAO.getAllCustomer())
+        assertEquals(1, mAllCustomers.first().id)
         assertEquals(2, mAllCustomers[1].id)
         assertEquals(3, mAllCustomers[2].id)
     }
@@ -142,7 +139,8 @@ class CustomerDatabaseTest {
     @Throws(Exception::class)
     fun eldestCustomer() {
         val eldest = mCustomerDAO.eldestCustomer()
-        assertEquals(43, eldest)
+        val maxAge = mCustomerDAO.listOfAges().max()
+        assertEquals(maxAge, eldest)
     }
 
     @After

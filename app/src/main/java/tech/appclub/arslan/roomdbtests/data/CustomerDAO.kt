@@ -54,6 +54,30 @@ interface CustomerDAO {
     @Query("SELECT COUNT(*) FROM customer_table")
     fun totalCustomers(): Int
 
+    // Total male customers
+    @Query("SELECT COUNT(*) FROM customer_table WHERE gender = 0")
+    fun totalMaleCustomers(): Int
+
+    // Total female customers
+    @Query("SELECT COUNT(*) FROM customer_table WHERE gender = 1")
+    fun totalFemaleCustomers(): Int
+
+    // Total other gender customers
+    @Query("SELECT COUNT(*) FROM customer_table WHERE gender = 2")
+    fun totalOtherGenderCustomers(): Int
+
+    // Count of all active customers
+    @Query("SELECT COUNT(*) FROM customer_table WHERE isCustomer = 0")
+    fun allActiveCustomerCount(): Int
+
+    // Count of all non-active customers
+    @Query("SELECT COUNT(*) FROM customer_table WHERE isCustomer = 1")
+    fun allNonActiveCustomerCount(): Int
+
+    // List of all ages
+    @Query("SELECT age FROM customer_table")
+    fun listOfAges(): List<Long>
+
     // Get eldest customer
     @Query("SELECT MAX(age) FROM customer_table LIMIT 1")
     fun eldestCustomer(): Long
